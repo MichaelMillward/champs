@@ -12,17 +12,13 @@
   fill: steelblue;
 }
 
-/*
-.bar:hover {
-  fill: brown;
-}
-*/
 .axis {
   font: 14px sans-serif;
 }
 
 .axis path,
 .axis line {
+  fill: white;
   stroke: #000;
   shape-rendering: crispEdges;
 }
@@ -35,6 +31,7 @@
 
 </style>
     </head>
+    
     <script src="underscore.js" charset="utf-8"></script>
     <script src="moment.js" charset="utf-8"></script>
     <script src="papaparse.js" charset="utf-8"></script>
@@ -42,10 +39,13 @@
     <script src="d3/d3.js" charset="utf-8"></script>
     <script src="d3/d3.min.js" charset="utf-8"></script>
     <script src="util.js" charset="utf-8"></script>
+    <script src="performance.js" charset="utf-8"></script>
+    <script src="team_piechart.js" charset="utf-8"></script>
+    
     <body>
         <form>
-            <font>Select a year:</font>
-            <select id="year">
+            <font color="black">Select a year:</font>
+            <select id="yearSelection">
                 <option>2008</option>
                 <option>2009</option>
                 <option>2010</option>
@@ -55,8 +55,8 @@
             </select>
         </form>
         <form>
-            <font>Select a team:</font>
-            <select id="team">
+            <font color="black">Select a team:</font>
+            <select id="teamSelection">
                 <option>NSW Swifts</option>
                 <option>Melbourne Vixens</option>
                 <option>Central Pulse</option>
@@ -70,7 +70,7 @@
             </select>
         </form>
         <form>
-            <input type="button" value="ok" onClick="drawGraph()">
+            <input type="button" value="ok" onClick="drawt()">
             <input type="button" value="reset" onClick="refresh()">
         </form>
     <body>
@@ -78,187 +78,14 @@
 
     <script language "JavaScript">
 
-    var barWidth;
-    var svg;
+   function drawt(){
+      wol.drawGraph(teamSelection.value, yearSelection.value);
+      //performance.drawGraph(teamSelection.value, yearSelection.value);
+   }
 
-        function drawGraph(){
-            var games = getMatches();
-            var seasonPerformance = getSeasonPerformance(games);
-            console.log("Amount of matches: " + seasonPerformance.length);
-            refresh();
-            draw(seasonPerformance);
-        }
-
-        /**
-        *   Returns a sorted list of all the matches for a given team in a given year.
-        */
-        function getMatches(){
-            var homeAndAway = [];
-            var allMatches = Util.allMatches[year.value];
-            for(var i = 0; i<allMatches.length; i++){
-                var match = allMatches[i];
-                if(match.homeTeam.name == team.value || match.awayTeam.name == team.value){
-
-                    homeAndAway.push(match);
-                }
-            }
-            return homeAndAway;
-        }
-
-        // SKIPS BYES... WHATS GOING ON! NEED TO INSERT A BYE OBJECT
-        function getSeasonPerformance(matches){
-            var seasonPerformance = [];
-            var index = 0;
-            for(var i = 0; i<matches.length; i++){
-                var pointDifference;
-                var match = matches[i];
-                // Deals if there is a draw
-                if(isNaN(match.scoreHome)){
-                    pointDifference = 0;
-                }
-                else if(match.homeTeam.name == team.value){
-                    pointDifference = match.scoreHome - match.scoreAway;
-                }
-                else if(match.awayTeam.name == team.value){
-                    pointDifference = match.scoreAway - match.scoreHome;
-                }
-                
-                // A hack to check if a bye has been made:
-                if(index>0 && match.round - seasonPerformance[index-1].round == 2){
-                    var byeObject = {homeTeam: team.value, awayTeam: "BYE", round: index+1, score: 0};
-                    seasonPerformance.push(byeObject);
-                    index++;
-                }
-                var matchAbbr = {homeTeam: match.homeTeam, awayTeam: match.awayTeam, round: match.round, score: pointDifference};
-                seasonPerformance.push(matchAbbr);
-                index++;
-            }
-            return seasonPerformance;
-        }
-
-        function draw(matches){
-            for(var j = 0; j<matches.length; j++){
-                console.log("round: " + matches[j].round + " score: " + matches[j].score);
-            }
-            var margin = {top: 30, right: 10, bottom: 10, left: 40},
-            width = 960 - margin.left - margin.right,
-            height = 500 - margin.top - margin.bottom;
-
-            var y = d3.scale.linear()
-                .range([0, height]);
-
-            var x = d3.scale.ordinal()
-                .rangeRoundBands([0, width], .2);
-
-            var xAxis = d3.svg.axis()
-                .scale(x)
-                .orient("top");
-
-            var yAxis = d3.svg.axis()
-                          .scale(y)
-                          .orient("left");
-
-            svg = d3.select("body").append("svg")
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
-              .append("g")
-                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-
-            var yMax = -1000;
-            var yMin = 1000;
-
-            for(var j = 0; j<matches.length; j++){
-               var match = matches[j];
-               if(match.score > yMax){
-                    yMax = match.score;
-               }
-               if(match.score < yMin){
-                    yMin = match.score;
-               }
-            }
-
-            for(var i = 0; i<matches.length; i++){
-                x.domain(matches.map(function(d) {return d.round; }));
-                y.domain( [(yMax+2), (yMin-2)]); // 2 is just a border
-            }
-
-            drawSeasonBlocks(margin, y(yMin), y(yMax), x.rangeBand());
-
-            svg.selectAll(".bar")
-               .data(matches)
-               .enter().append("rect")
-               .attr("class", function(d) { return d.score < 0 ? "bar negative" : "bar positive"; })
-               .attr("x", function(d) { return x(d.round); })
-               .attr("y", function(d) { return y(Math.max(0, d.score));})
-               .attr("width", x.rangeBand())
-               .attr("height", function(d) { return Math.abs(y(d.score) - y(0)); });
-
-            // FROM DOWN HERE HAVEN'T DONE
-
-
-            svg.append("g")
-               .attr("class", "x axis")
-               .call(xAxis);
-
-            svg.append("g")
-                .attr("class", "y axis")
-                .call(yAxis)
-                .append("text")
-                .attr("transform", "rotate(-90)")
-                .attr("y", 6)
-                .attr("dy", ".71em")
-                .style("text-anchor", "end")
-                .text("Point Margin");
-
-
-      }
-
-      function drawSeasonBlocks(margin, yMin, yMax, xBand){
-        // ISSUE WITH 2011
-
-          // Draw the parts of the season
-          // Early part
-          var x;
-          var width = margin.right+(xBand*5); 
-          var height = (Math.abs(yMin)+yMax);
-          console.log("Width is: " + width + " yeeaaa");
-          svg.append("rect")
-             .attr("x", 0)
-             .attr("y", 0)
-             .attr("width", width)
-             .attr("height", height)
-             .attr("fill", "grey")
-             .attr("opacity", 0.2);  
-
-         // Mid part does not need drawing
-
-         // Final part
-         x = width + ((xBand * 7)) + 20;
-         svg.append("rect")
-             .attr("x", x)
-             .attr("y", 0)
-             .attr("width", width-margin.right)
-             .attr("height", height)
-             .attr("fill", "grey")
-             .attr("opacity", 0.2); 
-
-        // Final period (needs to check if final periods is needed)
-      }
-
-function type(d) {
-  d.value = +d.value;
-  return d;
-} 
-  
-
-        function refresh(){
-            d3.select("body")
-              .selectAll("svg")
-              .remove();
-        }
 
     </script>
 </html>
+
 
 

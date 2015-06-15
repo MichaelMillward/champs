@@ -1,0 +1,70 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+<meta content="utf-8" http-equiv="encoding">
+
+<html>
+    <head>
+        <title>ANZ Champions</title>
+        <style>
+
+.bar {
+  fill: steelblue;
+}
+
+/*
+.bar:hover {
+  fill: brown;
+}
+*/
+.axis {
+  font: 14px sans-serif;
+}
+
+.axis path,
+.axis line {
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  display: none;
+}
+</style>
+    </head>
+    <script src="d3/d3.js" charset="utf-8"></script>
+    <script src="d3/d3.min.js" charset="utf-8"></script>
+
+
+    <script language "JavaScript">
+
+
+
+// Draws new svg with focused view of that set of matches!
+console.log("hello!");
+    var svg = d3.select("body").append("svg")
+        .attr("width", 200)
+        .attr("height", 400);
+    var image = svg.append("svg:image")
+                   .attr("xlink:href", "images/steel.jpg")
+                   .attr("x", 0)
+                   .attr("y", 0);
+
+
+function type(d) {
+  d.value = +d.value;
+  return d;
+} 
+  
+
+function refresh(){
+    d3.select("body")
+      .selectAll("svg")
+      .remove();
+}
+
+    </script>
+  </style>
+</html>
+
+

@@ -1,12 +1,26 @@
+ul{
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+li{
+    display: inline;
+    margin-left: auto;
+    margin-right: auto;
+    width: 1000px;
+    text-align: center;
+    font-weight: bold;
+}
 .nav-button {
     background-color: #FFFFFF;
     margin-right : 0.8em;
     color : "white";
     font-size : 1.6em;
-    /*float : left;*/
+    /*float : center;*/
     display : inline-block;
-    border-right-width : 4px;
-    border-right-style : solid;
+    border-width : 4px;
+    border-style : solid;
     border-right-color : black
 }
 .option-button{
@@ -23,7 +37,7 @@
 #logo {
     display : inline-block;
 }
-
+/*
 #body-section {
     background-color : #FFFFFF;
     margin-left : auto;
@@ -33,10 +47,12 @@
 }
 
 #navbar {
-    display : inline-block;
+    /*display : inline-block;
     top : 30px;
-    width : 100%;
-    background-color: #FFFFFF;
+    margin-left: auto;
+    margin-right: auto;
+    width : 20%;
+    background-color: #FFFF00;
 }
 #options-bar {
     display : inline-block;
@@ -47,6 +63,9 @@
 body {
     font-family : Sans-Serif, Arial;
     font-weight : bold;
-    background-color: #000000;
+}
+*/
+h1 {
+    text-align: center;
 }
 

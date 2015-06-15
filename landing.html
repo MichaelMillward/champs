@@ -2,17 +2,25 @@
 
 <html>
     <head>
+        <script src="underscore.js" charset="utf-8"></script>
+        <script src="moment.js" charset="utf-8"></script>
+        <script src="papaparse.js" charset="utf-8"></script>
+        <script src="jsdata/alldata.js" charset="utf-8"></script>
+        <script src="d3/d3.js" charset="utf-8"></script>
+        <script src="d3/d3.min.js" charset="utf-8"></script>
+        <script src="util.js" charset="utf-8"></script>
+        <script src="performance.js" charset="utf-8"></script>
         <title>ANZ Champions</title>
         <link rel="stylesheet" type="text/css" href="css/landing.css">
     </head>
     <body>
+        <h1>ANZ Championship Visualisation</h1>
         <div id="top-section">
-            <div id="logo"><img width="200px" src="images/300-anz-champ.jpg"></div>
-            <div id="navbar">
-                <div class="nav-button">HOME</div>
-                <div class="nav-button">TEAM</div>
-                <div class="nav-button">COMPARE</div>
-            </div>
+            <ul>
+                <li id="home" onclick="clicked('home')">HOME</li>
+                <li id="team" onclick="clicked('team')">TEAM</li>
+                <li id="compare" onclick="clicked('compare')">COMPARE</li>
+            </ul>
         <div id="options-bar">
         </div>
         </div>
