@@ -37,9 +37,16 @@
     <script src="d3/d3.js" charset="utf-8"></script>
     <script src="d3/d3.min.js" charset="utf-8"></script>
     <script src="util.js" charset="utf-8"></script> 
-    <script src="team_rank.js" charset="utf-8"></script>
+    <script src="team_overview.js" charset="utf-8"></script>
+    <script src="team_season.js" charset="utf-8"></script>  
     
     <body>
+        <input type="button" value="Overview" onClick="overview()">
+        <input type="button" value="Season" onClick="season()">
+        
+        <div id="choiceTeamSeason">
+            Season
+        </div>
         <form>
             <font color="black">Select a team:</font>
             <select id="teamSelection">
@@ -55,8 +62,21 @@
                 <option>Queensland Firebirds</option>
             </select>
         </form>
+
         <form>
-            <input type="button" value="ok" onClick="drawHipHop()">
+            <font color="black">Select a Year:</font>
+            <select id="yearSelection">
+                <option>2008</option>
+                <option>2009</option>
+                <option>2010</option>
+                <option>2011</option>
+                <option>2012</option>
+                <option>2013</option>
+            </select>
+        </form>
+
+        <form>
+            <input type="button" value="ok" onClick="teamSelected()">
             <input type="button" value="reset" onClick="refresh()">
         </form>
     <body>
@@ -64,9 +84,29 @@
 
     <script language "JavaScript">
 
-    function drawHipHop(){
-        team_rank.drawGraphs(teamSelection.value);
+    var mode = "Season";
+
+    function teamSelected(){
+        if(mode == "Overview"){
+            team_overview.drawGraphs(teamSelection.value);
+        }
+        else if(mode == "Season"){
+            team_season.drawGraph(teamSelection.value, yearSelection.value);
+        }
     }
+
+    function overview(){
+        d3.selectAll("svg")
+          .remove();
+        mode = "Overview";
+    }
+
+    function season(){
+        d3.selectAll("svg")
+          .remove();
+        mode = "Season";
+    }
+
 
     </script>
 </html>

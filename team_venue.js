@@ -1,5 +1,7 @@
 var team_venue = {
     teamSelected : "",
+    svg: "",
+    textField: "",
 
     drawGraph: function(team){
         // Draw Ranking Graph
@@ -76,15 +78,20 @@ var team_venue = {
     },
 
     drawRectangles: function(data){
-        var margin = {top: 40, right: 20, bottom: 0, left: 50},
+        var margin = {top: 40, right: 20, bottom: 35, left: 50},
             width = 700 - margin.left - margin.right,
-            height = 300 - margin.top - margin.bottom;
+            height = 340 - margin.top - margin.bottom;
 
-        var svg = d3.select("body").append("svg")
+        svg = d3.select("body").append("svg")
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
           .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        // Set up textField.
+        this.textField = svg.append("g")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", 200);
 
 
         // Top 5 (best win percentage)
@@ -171,7 +178,7 @@ var team_venue = {
            .attr("height", rectheight)
            .attr("fill", "green")
            .on("click", function(d){
-              console.log(d.venue);
+              team_venue.drawStadium(d);
            });
 
         svg.selectAll()
@@ -192,8 +199,23 @@ var team_venue = {
            .attr("height", rectheight)
            .attr("fill", "red")
            .on("click", function(d){
-              console.log(d.venue);
+              team_venue.drawStadium(d);
            });
+    },
+
+    drawStadium : function(d){
+        this.textField.selectAll("*")
+                      .remove();
+        this.textField.append("text")
+                       .attr("x", 20)
+                       .attr("y", 260)
+                       .attr("font-size", "20px")
+                       .text("Venue: " + d.venue);
+        this.textField.append("text")
+                       .attr("x", 20)
+                       .attr("y", 285)
+                       .attr("font-size", "20px")
+                       .text("Wins: " + d.wins + " Losses: " + d.losses);
     },
 
     indexOf : function(data, venue){

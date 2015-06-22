@@ -137,6 +137,12 @@ var performance = {
 
         this.drawSeasonBlocks(margin, y(yMin), y(yMax), x, matches);
 
+        textField = d3.select("body").append("svg")
+            .attr("x", 0)
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", 80)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
         this.svg.selectAll(".bar")
            .data(matches)
@@ -147,7 +153,37 @@ var performance = {
           })
            .attr("y", function(d) { return y(Math.max(0, d.score));})
            .attr("width", x.rangeBand())
-           .attr("height", function(d) { return Math.abs(y(d.score) - y(0)); });
+           .attr("height", function(d) { return Math.abs(y(d.score) - y(0)); })
+           .on("mouseover", function(d){
+              textField.append("text")
+                 .attr("x", (width/2)-90)
+                 //.attr("y", height+20)
+                 .attr("height", 40)
+                 .attr("font-size", "20px")
+                 .attr("font-family", "sans-serif")
+                 .text(""+ d.homeTeam.name + ": " + d.scoreHome);
+              textField.append("text")
+                 .attr("x", (width/2)-90)
+                 .attr("y", 23)
+                 .attr("width", width)
+                 .attr("height", 40)
+                 .attr("font-size", "20px")
+                 .attr("font-family", "sans-serif")
+                 .text(""+ d.awayTeam.name + ": " + d.scoreAway);
+              textField.append("text")
+                 .attr("x", (width/2)-90)
+                 .attr("y", 46)
+                 .attr("width", width)
+                 .attr("height", 40)
+                 .attr("font-size", "20px")
+                 .attr("font-family", "sans-serif")
+                 .text("Venue: " + d.venue);
+
+           })
+           .on('mouseout', function(d){
+              textField.selectAll('*')
+                       .remove();
+           });
 
         this.svg.append("g")
            .attr("class", "x axis")
@@ -169,16 +205,109 @@ var performance = {
 
     },
 
-    focus: function(matches){
-        console.log("focus");
+
+    drawSeasonBlocks: function(margin, yMin, yMax, xFunc, matches){
+      // Early season
+      var x = 0;
+      var width = xFunc(4) + xFunc.rangeBand() + margin.right; 
+      var height = (Math.abs(yMin)+yMax);
+      console.log("Width is: " + width + " yeeaaa");
+      this.svg.append("rect")
+         .attr("x", x)
+         .attr("y", 0)
+         .attr("width", width)
+         .attr("height", height)
+         .attr("fill", "grey")
+         .attr("opacity", 0.2)
+         .on("click", function(){
+            focusView(matches.slice(0, 4));
+        }); 
+
+      // Mid season
+      if(this.year == 2011){
+        width = xFunc(10) - xFunc(5);
+      }
+      else{
+        width = xFunc(11) - xFunc(5);
+      }
+      x = xFunc(5);
+      this.svg.append("rect")
+         .attr("x", x)
+         .attr("y", 0)
+         .attr("width", width)
+         .attr("height", height)
+         .attr("fill", "black")
+         .attr("opacity", 0.2)
+         .on("click", function(){
+            if(this.year == 2011){
+              focusView(matches.slice(4, 9));
+            }
+            else{
+              focusView(matches.slice(4, 10));
+            }
+        });  
+
+      // End season
+      if(this.year == 2011){
+        x = xFunc(10);
+        width = xFunc(13) - xFunc(9);
+      }
+      else{
+        x = xFunc(11);
+        width = (xFunc(14)+xFunc.rangeBand()+margin.right) - xFunc(11);
+      }
+      this.svg.append("rect")
+         .attr("x", x)
+         .attr("y", 0)
+         .attr("width", width)
+         .attr("height", height)
+         .attr("fill", "grey")
+         .attr("opacity", 0.2)
+         .on("click", function(){
+            if(this.year == 2011){
+              this.focusView(matches.slice(9, 13));
+            }
+            else{
+              this.focusView(matches.slice(10, 14));
+            }
+        });  
+
+      // Finals
+      if(this.year == 2011 && matches.length > 13){
+         x = xFunc(14);
+         width = (xFunc(matches.length)+xFunc.rangeBand()+margin.right) - xFunc(14);
+         this.svg.append("rect")
+             .attr("x", x)
+             .attr("y", 0)
+             .attr("width", width)
+             .attr("height", height)
+             .attr("fill", "black")
+             .attr("opacity", 0.2)
+             .on("click", function(){
+              focusView(matches.slice(13, matches.length));
+            });  
+      }
+      else if(matches.length > 14){
+           x = xFunc(15);
+           width = (xFunc(matches.length)+xFunc.rangeBand()+margin.right) - xFunc(15);
+           this.svg.append("rect")
+               .attr("x", x)
+               .attr("y", 0)
+               .attr("width", width)
+               .attr("height", height)
+               .attr("fill", "black")
+               .attr("opacity", 0.2)
+               .on("click", function(){
+                focusView(matches.slice(14, matches.length));
+              });  
+            }
     },
 
-/*
     // Draws new svg with focused view of that set of matches!
-    focus: function(matches){ 
-        var margin = {top: 20, right: 20, bottom: 60, left: 40},
-        width = 800 - margin.left - margin.right,
-        height = 350 - margin.top - margin.bottom;
+    focusView: function (matches){ 
+      var margin = {top: 20, right: 20, bottom: 60, left: 40},
+      width = 800 - margin.left - margin.right,
+      height = 350 - margin.top - margin.bottom;
 
       var x = d3.scale.ordinal()
           .rangeRoundBands([0, width], .1);
@@ -204,19 +333,19 @@ var performance = {
 
       for(var j = 0; j<matches.length; j++){
          var match = matches[j];
-         if(match.scoreHome > yMax){
-              yMax = match.scoreHome;
+         if(match.homeScore > yMax){
+              yMax = match.homeScore;
          }
-         if(match.scoreAway > yMax){
-              yMax = match.scoreAway;
+         if(match.awayScore > yMax){
+              yMax = match.awayScore;
          }
       }
-      
-      var fakeMatches = [{no: 1}, {no: 2}, {no: 3}, {no: 4}, {no: 5}, {no: 6}, {no: 7}];
+
+      var fakeMatches = [{no: 1}, {no: 2}, {no: 3}, {no: 4}];
 
       for(var i = 0; i<matches.length; i++){
           x.domain(fakeMatches.map(function(d) {
-              return d.no; 
+            console.log(console.log("matchnumberInGere: " + d.no)); return d.no; 
           }));
           y.domain( [0, yMax]); // 2 is just a border
       }
@@ -233,162 +362,85 @@ var performance = {
 
       // First draw home scores
       for(var j = 0; j<matches.length; j++){
-              var d = matches[j];
-              width = (x.rangeBand()/2)- 5;
-              var gap = 5;
-              // Home Score
-              svg.append("rect")
-                 .attr("class", "bar")
-                 .attr("x", x(d.matchno))
-                 .attr("width", width)
-                 .attr("y", y(d.scoreHome))
-                 .attr("height", (height - y(d.scoreHome)));
+        var d = matches[j];
+        width = (x.rangeBand()/2)- 5;
+        var gap = 5;
+        // Home Score
+        svg.append("rect")
+           .attr("class", "bar")
+           .attr("x", x(d.matchno))
+           .attr("width", width)
+           .attr("y", y(d.homeScore))
+           .attr("height", (height - y(d.homeScore)))
+           .attr("fill", d.homeColour);
+        // Away Score
+        svg.append("rect")
+           .attr("class", "bar")
+           .attr("x", x(d.matchno) + width + gap)
+           .attr("width", width)
+           .attr("y", y(d.awayScore))
+           .attr("height", (height - y(d.awayScore)))
+           .attr("fill", d.awayColour);
 
-              // Away Score
-              svg.append("rect")
-                 .attr("class", "bar")
-                 .attr("x", x(d.matchno) + width + gap)
-                 .attr("width", width)
-                 .attr("y", y(d.scoreAway))
-                 .attr("height", (height - y(d.scoreAway)));
-            
-      // The text to go on home bar
-      var messageWidth = x.rangeBand()/2 - 10;
+        var time = d.time; 
+        var date = d.date; 
+        var venue = d.venue; 
 
-      svg.append("text")
-         .attr('x', (x(d.matchno)+26))
-         .attr('font-family', 'sans-serif')
-         .attr('font-size', "20px")
-         .attr('y', (y(d.scoreHome-6)))
-         .attr("fill", "white")
-         .text(d.scoreHome);
+        svg.append("text")
+           .attr("x", x(d.matchno))
+           .attr("y", height + 20)
+           .attr("height", (height - y(d.awayScore)))
+           .text(time);
 
-      // The text to go on the away bar
-      var awayText = d.awayTeam + ": " + d.awayScore;
-      svg.append("text")
-         .attr('x', (x(d.matchno)+24+width+gap))
-         .attr('y', (y(d.awayScore-6)))
-         .attr('font-family', 'sans-serif')
-         .attr('font-size', "20px")
-         .attr("fill", "white")
-         .text(d.scoreAway);
+        svg.append("text")
+           .attr("x", x(d.matchno))
+           .attr("y", height +40)
+           .attr("height", (height - y(d.awayScore)))
+           .text(date);
 
-      
-      svg.append("text")
-         .attr('font-family', 'sans-serif')
-         .attr('font-size', "12px")
-         .attr("fill", "white")
-         .call(this.wrap, d.homeTeam.name, (x.rangeBand()/2)-6, 15)
-         .attr("transform", "translate(" + (x(d.matchno)+3) + ", " + (y(d.scoreHome-8))+ ")");
+        svg.append("text")
+           .attr("x", x(d.matchno))
+           .attr("y", height + 60)
+           .attr("height", (height - y(d.awayScore)))
+           .text(venue);
 
-      svg.append("text")
-         .attr('font-family', 'sans-serif')
-         .attr('font-size', "12px")
-         .attr("fill", "white")
-        .call(this.wrap, d.awayTeam.name, (x.rangeBand()/2)-6, 15)
-         .attr("transform", "translate(" + (x(d.matchno)+2+width+gap) + ", " + (y(d.scoreAway-8))+ ")");
-      }
-    },
-  
-*/
+        // The text to go on home bar
+        var homeText = d.home + ": " + d.homeScore;
+        var messageWidth = x.rangeBand()/2 - 10;
 
-    drawSeasonBlocks: function(margin, yMin, yMax, xFunc, matches){
-      // Early season
-      var x = 0;
-      var width = xFunc(4) + xFunc.rangeBand() + margin.right; 
-      var height = (Math.abs(yMin)+yMax);
-      console.log("Width is: " + width + " yeeaaa");
-      this.svg.append("rect")
-         .attr("x", x)
-         .attr("y", 0)
-         .attr("width", width)
-         .attr("height", height)
-         .attr("fill", "grey")
-         .attr("opacity", 0.2)
-         .on("click", function(){
-            console.log("in first part of the season");
-            performance.focus(matches.slice(0, 4));
-        }); 
+        svg.append("text")
+           .attr('x', (x(d.matchno)+26))
+           .attr('font-family', 'sans-serif')
+           .attr('font-size', "20px")
+           .attr('y', (y(d.homeScore-6)))
+           .attr("fill", "white")
+           .text(d.homeScore);
 
-      // Mid season
-      if(this.year == 2011){
-        width = xFunc(10) - xFunc(5);
-      }
-      else{
-        width = xFunc(11) - xFunc(5);
-      }
-      x = xFunc(5);
-      this.svg.append("rect")
-         .attr("x", x)
-         .attr("y", 0)
-         .attr("width", width)
-         .attr("height", height)
-         .attr("fill", "black")
-         .attr("opacity", 0.2)
-         .on("click", function(){
-            if(this.year == 2011){
-              performance.focus(matches.slice(4, 9));
-            }
-            else{
-              performance.focus(matches.slice(4, 10));
-            }
-        });  
+        // The text to go on the away bar
+        var awayText = d.awayTeam + ": " + d.awayScore;
+        svg.append("text")
+           .attr('x', (x(d.matchno)+24+width+gap))
+           .attr('y', (y(d.awayScore-6)))
+           .attr('font-family', 'sans-serif')
+           .attr('font-size', "20px")
+           .attr("fill", "white")
+           .text(d.awayScore);
 
-      // End season
-      if(this.year == 2011){
-        x = xFunc(10);
-        width = xFunc(13) - xFunc(9);
-      }
-      else{
-        x = xFunc(11);
-        width = (xFunc(14)+xFunc.rangeBand()+margin.right) - xFunc(11);
-      }
-      this.svg.append("rect")
-         .attr("x", x)
-         .attr("y", 0)
-         .attr("width", width)
-         .attr("height", height)
-         .attr("fill", "grey")
-         .attr("opacity", 0.2)
-         .on("click", function(){
-            if(this.year == 2011){
-              performance.focus(matches.slice(9, 13));
-            }
-            else{
-              performance.focus(matches.slice(10, 14));
-            }
-        });  
+        svg.append("text")
+           .attr('font-family', 'sans-serif')
+           .attr('font-size', "12px")
+           .attr("fill", "white")
+           .call(wrap, d.home, (x.rangeBand()/2)-6, 15)
+           .attr("transform", "translate(" + (x(d.matchno)+3) + ", " + (y(d.homeScore-8))+ ")");
 
-      // Finals
-      if(this.year == 2011 && matches.length > 13){
-         x = xFunc(14);
-         width = (xFunc(matches.length)+xFunc.rangeBand()+margin.right) - xFunc(14);
-         this.svg.append("rect")
-             .attr("x", x)
-             .attr("y", 0)
-             .attr("width", width)
-             .attr("height", height)
-             .attr("fill", "black")
-             .attr("opacity", 0.2)
-             .on("click", function(){
-              performance.focus(matches.slice(13, matches.length));
-            });  
-      }
-      else if(matches.length > 14){
-           x = xFunc(15);
-           width = (xFunc(matches.length)+xFunc.rangeBand()+margin.right) - xFunc(15);
-           this.svg.append("rect")
-               .attr("x", x)
-               .attr("y", 0)
-               .attr("width", width)
-               .attr("height", height)
-               .attr("fill", "black")
-               .attr("opacity", 0.2)
-               .on("click", function(){
-                performance.focus(matches.slice(14, matches.length));
-              });  
-            }
-    },
+        svg.append("text")
+           .attr('font-family', 'sans-serif')
+           .attr('font-size', "12px")
+           .attr("fill", "white")
+           .call(wrap, d.awayTeam, (x.rangeBand()/2)-6, 15)
+           .attr("transform", "translate(" + (x(d.matchno)+2+width+gap) + ", " + (y(d.awayScore-8))+ ")");
+    }
+  },
 
     /** function wraps text so that it fits on the screen in a certain area (enters linebreaks if needed). */
     wrap : function(selected, message, width, lineHeight) {
@@ -414,12 +466,14 @@ var performance = {
       }    
     },
 
+    type: function(d){
+      d.value = +d.value;
+      return d;
+    },
       
     refresh: function(){
         d3.select("body")
           .selectAll("svg")
           .remove();
     }
-
-
 };

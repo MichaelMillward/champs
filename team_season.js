@@ -1,17 +1,20 @@
-var performance = {
+var team_season = {
     svg : "",
     nonAlteredMatches : "",
     fg : "",
     team : "",
     year : "",
+    focussvg : "",
 
     drawGraph: function(teamArg, yearArg){
         this.team = teamArg;
         this.year = yearArg;
         nonAlteredMatches = this.getMatches();
-        var seasonPerformance = this.getSeasonPerformance(nonAlteredMatches);
+        var seasonteam_season = this.getSeasonteam_season(nonAlteredMatches);
         this.refresh();
-        this.draw(seasonPerformance);
+        this.draw(seasonteam_season);
+
+        // Draw focus svg so it doesn't cause undefined errors
     },
 
     /**
@@ -32,8 +35,8 @@ var performance = {
 
     // SKIPS BYES... WHATS GOING ON! NEED TO INSERT A BYE OBJECT
     // BYES SHOULD NOT BE INSERT IF THE YEAR IS 2011
-    getSeasonPerformance: function(matches){
-      var seasonPerformance = [];
+    getSeasonteam_season: function(matches){
+      var seasonteam_season = [];
       var index = 0;
       var ival;
       if(this.year == 2011){
@@ -52,7 +55,7 @@ var performance = {
             }
             var matchNumber = index+1;
             var matchAbbr = {homeTeam: match.homeTeam, awayTeam: match.awayTeam, matchno: matchNumber, round: match.round, score: pointDifference, scoreHome: match.scoreHome, scoreAway: match.scoreAway, venue: match.venue, gameDate: match.gameDate};
-            seasonPerformance.push(matchAbbr);
+            seasonteam_season.push(matchAbbr);
             index++;
         }
       }
@@ -73,20 +76,18 @@ var performance = {
             }
             var matchNumber = index+1;
             // A hack to check if a bye has been made:
-            if(index>0 && match.round - seasonPerformance[index-1].round == 2){
+            if(index>0 && match.round - seasonteam_season[index-1].round == 2){
                 var byeObject = {homeTeam: this.team, awayTeam: "BYE", matchno: matchNumber, round: index+1, score: 0, scoreHome: 0, scoreAway: 0, venue: "BYE", gameDate: "BYE"};
-                seasonPerformance.push(byeObject);
+                seasonteam_season.push(byeObject);
                 index++;
                 matchNumber++;
             }
-            console.log("MATCH NUMBER: " + matchNumber);
             var matchAbbr = {homeTeam: match.homeTeam, awayTeam: match.awayTeam, matchno: matchNumber, round: match.round, score: pointDifference, scoreHome: match.scoreHome, scoreAway: match.scoreAway, venue: match.venue, gameDate: match.gameDate};
-            seasonPerformance.push(matchAbbr);
-            console.log("MATCH ABBR!!!!!!!!: " + matchAbbr.scoreHome);
+            seasonteam_season.push(matchAbbr);
             index++;
         }
       }
-      return seasonPerformance;
+      return seasonteam_season;
     },
 
     draw: function(matches){
@@ -169,16 +170,18 @@ var performance = {
 
     },
 
-    focus: function(matches){
-        console.log("focus");
-    },
-
-/*
     // Draws new svg with focused view of that set of matches!
-    focus: function(matches){ 
-        var margin = {top: 20, right: 20, bottom: 60, left: 40},
-        width = 800 - margin.left - margin.right,
-        height = 350 - margin.top - margin.bottom;
+    focus: function(matchesArg){ 
+      /**
+      var matches = [];
+      for(var i = 0; i<matchesArg.length; i++){
+          var match = matchesArg[i];
+          matches.push({matchno: i, scoreHome: match.scoreHome, scoreAway: match.scoreAway, homeTeam: match.homeTeam, awayTeam: match.awayTeam});
+      }
+
+      var margin = {top: 20, right: 20, bottom: 60, left: 40},
+      width = 800 - margin.left - margin.right,
+      height = 350 - margin.top - margin.bottom;
 
       var x = d3.scale.ordinal()
           .rangeRoundBands([0, width], .1);
@@ -194,7 +197,7 @@ var performance = {
           .scale(y)
           .orient("left");
 
-      var svg = d3.select("body").append("svg")
+      this.focussvg = d3.select("body").append("svg")
           .attr("width", width + margin.left + margin.right)
           .attr("height", height + margin.top + margin.bottom)
         .append("g")
@@ -211,17 +214,16 @@ var performance = {
               yMax = match.scoreAway;
          }
       }
-      
-      var fakeMatches = [{no: 1}, {no: 2}, {no: 3}, {no: 4}, {no: 5}, {no: 6}, {no: 7}];
 
       for(var i = 0; i<matches.length; i++){
-          x.domain(fakeMatches.map(function(d) {
-              return d.no; 
+        console.log("Home Team: " + matches[i].homeTeam + "  Away Team: " + matches[i].awayTeam);
+          x.domain(matches.map(function(d) {
+              return d.matchno; 
           }));
           y.domain( [0, yMax]); // 2 is just a border
       }
 
-      svg.append("g")
+      this.focussvg.append("g")
           .attr("class", "y axis")
           .call(yAxis)
         .append("text")
@@ -233,29 +235,29 @@ var performance = {
 
       // First draw home scores
       for(var j = 0; j<matches.length; j++){
-              var d = matches[j];
-              width = (x.rangeBand()/2)- 5;
-              var gap = 5;
-              // Home Score
-              svg.append("rect")
-                 .attr("class", "bar")
-                 .attr("x", x(d.matchno))
-                 .attr("width", width)
-                 .attr("y", y(d.scoreHome))
-                 .attr("height", (height - y(d.scoreHome)));
+        var d = matches[j];
+        width = (x.rangeBand()/2)- 5;
+        var gap = 5;
+        // Home Score
+        this.focussvg.append("rect")
+           .attr("class", "bar")
+           .attr("x", x(d.matchno))
+           .attr("width", width)
+           .attr("y", y(d.scoreHome))
+           .attr("height", (height - y(d.scoreHome)));
 
-              // Away Score
-              svg.append("rect")
-                 .attr("class", "bar")
-                 .attr("x", x(d.matchno) + width + gap)
-                 .attr("width", width)
-                 .attr("y", y(d.scoreAway))
-                 .attr("height", (height - y(d.scoreAway)));
-            
+        // Away Score
+        this.focussvg.append("rect")
+           .attr("class", "bar")
+           .attr("x", x(d.matchno) + width + gap)
+           .attr("width", width)
+           .attr("y", y(d.scoreAway))
+           .attr("height", (height - y(d.scoreAway)));
+
       // The text to go on home bar
       var messageWidth = x.rangeBand()/2 - 10;
 
-      svg.append("text")
+      this.focussvg.append("text")
          .attr('x', (x(d.matchno)+26))
          .attr('font-family', 'sans-serif')
          .attr('font-size', "20px")
@@ -265,32 +267,31 @@ var performance = {
 
       // The text to go on the away bar
       var awayText = d.awayTeam + ": " + d.awayScore;
-      svg.append("text")
+      this.focussvg.append("text")
          .attr('x', (x(d.matchno)+24+width+gap))
-         .attr('y', (y(d.awayScore-6)))
+         .attr('y', (y(d.scoreAway-6)))
          .attr('font-family', 'sans-serif')
          .attr('font-size', "20px")
          .attr("fill", "white")
          .text(d.scoreAway);
 
-      
-      svg.append("text")
+      this.focussvg.append("text")
          .attr('font-family', 'sans-serif')
          .attr('font-size', "12px")
          .attr("fill", "white")
          .call(this.wrap, d.homeTeam.name, (x.rangeBand()/2)-6, 15)
          .attr("transform", "translate(" + (x(d.matchno)+3) + ", " + (y(d.scoreHome-8))+ ")");
 
-      svg.append("text")
+      this.focussvg.append("text")
          .attr('font-family', 'sans-serif')
          .attr('font-size', "12px")
          .attr("fill", "white")
         .call(this.wrap, d.awayTeam.name, (x.rangeBand()/2)-6, 15)
          .attr("transform", "translate(" + (x(d.matchno)+2+width+gap) + ", " + (y(d.scoreAway-8))+ ")");
-      }
+      }*/
     },
   
-*/
+
 
     drawSeasonBlocks: function(margin, yMin, yMax, xFunc, matches){
       // Early season
@@ -306,8 +307,10 @@ var performance = {
          .attr("fill", "grey")
          .attr("opacity", 0.2)
          .on("click", function(){
-            console.log("in first part of the season");
-            performance.focus(matches.slice(0, 4));
+            d3.select("svg")
+              .remove();
+            team_season.drawGraph(team_season.team, team_season.year);
+            team_season.focus(matches.slice(0, 5));
         }); 
 
       // Mid season
@@ -326,11 +329,14 @@ var performance = {
          .attr("fill", "black")
          .attr("opacity", 0.2)
          .on("click", function(){
+            d3.select("svg")
+              .remove();
+            team_season.drawGraph(team_season.team, team_season.year);
             if(this.year == 2011){
-              performance.focus(matches.slice(4, 9));
+              team_season.focus(matches.slice(4, 9));
             }
             else{
-              performance.focus(matches.slice(4, 10));
+              team_season.focus(matches.slice(4, 10));
             }
         });  
 
@@ -351,11 +357,14 @@ var performance = {
          .attr("fill", "grey")
          .attr("opacity", 0.2)
          .on("click", function(){
+            d3.select("svg")
+              .remove();
+            team_season.drawGraph(team_season.team, team_season.year);
             if(this.year == 2011){
-              performance.focus(matches.slice(9, 13));
+              team_season.focus(matches.slice(9, 13));
             }
             else{
-              performance.focus(matches.slice(10, 14));
+              team_season.focus(matches.slice(10, 14));
             }
         });  
 
@@ -368,10 +377,13 @@ var performance = {
              .attr("y", 0)
              .attr("width", width)
              .attr("height", height)
-             .attr("fill", "black")
-             .attr("opacity", 0.2)
+             .attr("fill", "gold")
+             .attr("opacity", 1)
              .on("click", function(){
-              performance.focus(matches.slice(13, matches.length));
+              d3.select("svg")
+                .remove();
+            team_season.drawGraph(team_season.team, team_season.year);
+              team_season.focus(matches.slice(13, matches.length));
             });  
       }
       else if(matches.length > 14){
@@ -382,17 +394,22 @@ var performance = {
                .attr("y", 0)
                .attr("width", width)
                .attr("height", height)
-               .attr("fill", "black")
-               .attr("opacity", 0.2)
+               .attr("fill", "gold")
+               .attr("opacity", 1)
                .on("click", function(){
-                performance.focus(matches.slice(14, matches.length));
+                d3.select("svg")
+              .remove();
+            team_season.drawGraph(team_season.team, team_season.year);
+                team_season.focus(matches.slice(14, matches.length));
               });  
             }
     },
 
     /** function wraps text so that it fits on the screen in a certain area (enters linebreaks if needed). */
     wrap : function(selected, message, width, lineHeight) {
+        if(message == undefined){return;} // Due to Byes
         var text = selected; // This is the text element holding the tspan elements
+        console.log("MESSAGE: " + message);
         var words = message.split(/\s+/).reverse();
         var line = []; // This is the line that will hold the current line being added to
         var lineNumber = 0; // Needed for calculating how many lines needed to go down

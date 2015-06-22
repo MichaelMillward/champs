@@ -8,26 +8,28 @@
         <title>ANZ Champions</title>
         <style>
 
-        .bar {
-          fill: steelblue;
-        }
+.bar {
+  fill: steelblue;
+}
 
-        .axis {
-          font: 14px sans-serif;
-        }
+.axis {
+  font: 14px sans-serif;
+}
 
-        .axis path,
-        .axis line {
-          fill: white;
-          stroke: #000;
-          shape-rendering: crispEdges;
-        }
+.axis path,
+.axis line {
+  fill: white;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
 
-        .x.axis path {
-          display: none;
-        }
+.x.axis path {
+  display: none;
+}
 
-        </style>
+
+
+</style>
     </head>
     
     <script src="underscore.js" charset="utf-8"></script>
@@ -36,10 +38,22 @@
     <script src="jsdata/alldata.js" charset="utf-8"></script>
     <script src="d3/d3.js" charset="utf-8"></script>
     <script src="d3/d3.min.js" charset="utf-8"></script>
-    <script src="util.js" charset="utf-8"></script> 
-    <script src="team_rank.js" charset="utf-8"></script>
+    <script src="util.js" charset="utf-8"></script>
+    <script src="team_rank_round.js" charset="utf-8"></script>
+    <script src="team_piechart.js" charset="utf-8"></script>
     
     <body>
+        <form>
+            <font color="black">Select a year:</font>
+            <select id="yearSelection">
+                <option>2008</option>
+                <option>2009</option>
+                <option>2010</option>
+                <option>2011</option>
+                <option>2012</option>
+                <option>2013</option>
+            </select>
+        </form>
         <form>
             <font color="black">Select a team:</font>
             <select id="teamSelection">
@@ -56,7 +70,7 @@
             </select>
         </form>
         <form>
-            <input type="button" value="ok" onClick="drawHipHop()">
+            <input type="button" value="ok" onClick="drawt()">
             <input type="button" value="reset" onClick="refresh()">
         </form>
     <body>
@@ -64,9 +78,11 @@
 
     <script language "JavaScript">
 
-    function drawHipHop(){
-        team_rank.drawGraphs(teamSelection.value);
-    }
+   function drawt(){
+      team_rank_round.drawGraph(teamSelection.value, yearSelection.value);
+      //performance.drawGraph(teamSelection.value, yearSelection.value);
+   }
+
 
     </script>
 </html>
