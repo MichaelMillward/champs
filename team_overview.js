@@ -15,6 +15,8 @@ var team_overview = {
       this.drawRectangles(perferred);
   },
 
+  addLine: function(){},
+
   calculateRank: function(){
       var rankings = [];
       var years = [2008, 2009, 2010, 2011, 2012, 2013];
@@ -157,7 +159,7 @@ var team_overview = {
   drawRank: function(rankings){
       console.log("rankings length: " + rankings.length);
       var margin = {top: 20, right: 20, bottom: 30, left: 50},
-          width = 700 - margin.left - margin.right,
+          width = 750 - margin.left - margin.right,
           height = 400 - margin.top - margin.bottom;
 
       // X scale will fit all values from data[] within pixels 0-w
@@ -229,7 +231,7 @@ var team_overview = {
 
     drawRectangles: function(data){
         var margin = {top: 40, right: 20, bottom: 35, left: 50},
-            width = 700 - margin.left - margin.right,
+            width = 850 - margin.left - margin.right,
             height = 340 - margin.top - margin.bottom;
 
         svg = d3.select("body").append("svg")

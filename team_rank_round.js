@@ -21,21 +21,31 @@ var team_rank_round = {
       	  // Should be picking a year that the user choses. 
           var matches = this.getYearMatches(teams[j], this.yearSelected);
           var pointsFromYear = this.calculatePoints(matches, teams[j]);
+          if(teams[j] === this.teamSelected){
+            //console.log("points over round for " + this.teamSelected);
+            for(var i = 0; i<pointsFromYear.length; i++){
+              //console.log(pointsFromYear[i]);
+            }
+          }
           teamPoints.push({team: teams[j], points: pointsFromYear});
       }
       // teamPoints is a list of all the different teams and how their points vaired over rounds of a particular year. 
 
       // Find out many matches were played for the team selected 
+      var max;
       var matches = this.getYearMatches(this.teamSelected, this.yearSelected);
-      var lastRound = matches[matches.length-1].round;
-
-      // Go through each round, 13 rounds for 2011
-      for(var k = 0; k<lastRound; k++){
-        console.log("Loop 1");
+      if(this.yearSelected === 2011){
+        max = matches.length
+      }
+      else{
+        max = matches[matches.length-1].round;
+      }
+      console.log("matches: " + max);
+      for(var k = 0; k<max; k++){
       	// Now create a list with all the scores from each round. k = round number.
       	var rankingsForYear = [];
       	for(var l = 0; l<teamPoints.length; l++){
-          console.log("Loop 2");
+
       		var teamFocus = teamPoints[l].team;
       		var allpointsforateam = teamPoints[l].points;
           if(allpointsforateam[k] !== undefined){
@@ -52,7 +62,7 @@ var team_rank_round = {
 
       	// Find the selected teams positioning on the table and add that to the rankings.
 		for(var m = 0; m<rankingsForYear.length; m++){
-      console.log("Loop 3");
+      //console.log("Team: " + rankingsForYear[m].team + " Rank: " + (m+1) + " Points: " + rankingsForYear[m].points);
       		if(rankingsForYear[m].team == this.teamSelected){
       			rankings.push({round: k+1, rank: m+1});
       		}
@@ -70,7 +80,7 @@ var team_rank_round = {
       var points = [];
       var index = 1;
       for(var j = 0; j<matches.length; j++){
-          console.log("Loop 4");
+          //console.log("Loop 4");
           var match = matches[j];
           var currentPoints = 0;
           if(j > 0){
@@ -78,7 +88,7 @@ var team_rank_round = {
           }
           if(this.yearSelected != 2011){
             while(index>0 && match.round != index){
-              console.log("Hellp!");
+              //console.log("Hellp!");
               points.push(currentPoints);
               index++;
             }
@@ -102,7 +112,6 @@ var team_rank_round = {
               index++;
           }
       }
-      console.log("Team: " + team + " has: " + points.length);
       return points;
   },
 
@@ -110,7 +119,6 @@ var team_rank_round = {
 	  var homeAndAway = [];
 	  var allMatches = Util.allMatches[year];
 	  for(var i = 0; i<allMatches.length; i++){
-        console.log("Loop 5");
 	      var match = allMatches[i];
 	      if(match.homeTeam.name == team || match.awayTeam.name == team){
 	          homeAndAway.push(match);
@@ -173,7 +181,6 @@ var team_rank_round = {
 
       // drawing small balls at each year
       for(var i = 0; i<rankings.length; i++){
-        console.log("drawing circs");
         svg.append("oval")
           .attr("x", x(i+1))
           .attr("y", y(i+1))
