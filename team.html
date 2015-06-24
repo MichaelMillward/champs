@@ -118,14 +118,14 @@
 
     <script language "JavaScript">
 
-    var mode = "Season";
+    var mode = "Overview";
 
     function teamSelected(){
         if(mode == "Overview"){
-            team_overview.drawGraphs(teamSelection.value);
+            team_overview.firstMethod(teamSelection.value);
         }
         else if(mode == "Season"){
-            team_season.drawGraph(teamSelection.value, yearSelection.value);
+            team_season.firstMethod(teamSelection.value, yearSelection.value);
         }
     }
 
@@ -142,8 +142,12 @@
     }
 
     function addLine(){
-        console.log("In here");
-        team_season.addLine(teamSelection.value, yearSelection.value);
+        if(mode == "Overview"){
+          team_overview.addLine(teamSelection.value);
+        }
+        else{
+          team_season.addLine(teamSelection.value, yearSelection.value);
+        }     
     }
 
     function refresh(){

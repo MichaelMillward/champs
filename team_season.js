@@ -20,6 +20,14 @@ var team_season = {
               {team: "Queensland Firebirds", colour: "rgb(153,153,255)"}],
     lineObjects: [],
 
+    // Needed to clear line objects.
+    firstMethod: function(teamArg, yearArg){
+        console.log("CLEEAAAAAAAARRING");
+        this.lineObjects = [];
+        this.drawGraph(teamArg, yearArg);
+        console.log("Line object length: ")
+    },
+
     drawGraph: function(teamArg, yearArg){
         this.refresh();
         this.teamSelected = teamArg;
@@ -370,7 +378,7 @@ draw: function(matchesArg){
     // Text in the middle of the graph
     this.svg.append("text")
             .attr("x", -42)
-            .attr("y", -10)
+            .attr("y", -8)
             .style("font-weight", "bold")
             .text("Game");
     // the final argument is a int which is the value of the final match 
@@ -379,7 +387,13 @@ draw: function(matchesArg){
             .attr("y", 323)
             .style("font-style", "italic")
             .style("font-size", "15px")
-            .text("Line Graph: Left Click a line to delete. Right click a line to focus on a team and season.");   
+            .text("Right Click a line to delete. Left click a line to focus on a team and season.");
+    this.svg.append("text")
+        .attr("x", 160)
+        .attr("y", 337)
+        .style("font-style", "italic")
+        .style("font-size", "15px")
+        .text("Hover mouse over bar to view match detail.");    
 },
 
 // Draws new svg with focused view of that set of matches!
